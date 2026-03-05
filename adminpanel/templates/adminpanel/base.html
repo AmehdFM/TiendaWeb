@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión | SOFTWEAR{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .sidebar-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <!-- Mobile Top Bar -->
+    <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-50">
+        <span class="font-bold tracking-tighter text-slate-900 uppercase text-sm">SOFTWEAR <span
+                class="text-slate-400">Admin</span></span>
+        <button id="mobileMenuToggle" class="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300">
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 w-80 bg-slate-900 text-slate-400 z-50 transform -translate-x-full sidebar-transition flex flex-col shadow-2xl">
+        <div class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-12">
+                <h2 class="text-white text-2xl font-bold tracking-tighter">SOFTWEAR <span
+                        class="text-slate-500 text-sm uppercase tracking-widest ml-1">Admin</span></h2>
+                <button id="closeSidebar"
+                    class="p-2 hover:bg-slate-800 rounded-xl transition-colors text-slate-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="{% url 'adminpanel:dashboard' %}"
+                    class="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all {% if request.resolver_match.url_name == 'dashboard' %}bg-white text-slate-900 shadow-xl shadow-black/20{% else %}hover:bg-slate-800 hover:text-slate-200{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Vista General
+                </a>
+                <a href="{% url 'adminpanel:product_list' %}"
+                    class="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all {% if request.resolver_match.url_name == 'product_list' %}bg-white text-slate-900 shadow-xl shadow-black/20{% else %}hover:bg-slate-800 hover:text-slate-200{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Productos
+                </a>
+                <a href="{% url 'adminpanel:tag_list' %}"
+                    class="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all {% if request.resolver_match.url_name == 'tag_list' %}bg-white text-slate-900 shadow-xl shadow-black/20{% else %}hover:bg-slate-800 hover:text-slate-200{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Etiquetas
+                </a>
+                <a href="{% url 'adminpanel:operation_list' %}"
+                    class="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all {% if request.resolver_match.url_name == 'operation_list' %}bg-white text-slate-900 shadow-xl shadow-black/20{% else %}hover:bg-slate-800 hover:text-slate-200{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Operaciones
+                </a>
+            </nav>
+        </div>
+
+        <div class="mt-auto p-8">
+            <a href="{% url 'store:home' %}"
+                class="flex items-center justify-center gap-3 w-full py-4 border border-slate-700 hover:border-white hover:text-white rounded-2xl transition-all text-xs font-black uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Ver Tienda
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 w-full">
+        <!-- Desktop Header -->
+        <header
+            class="bg-white border-b border-slate-200 px-10 py-5 sticky top-0 z-30 hidden md:flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <button id="desktopMenuToggle"
+                    class="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Panel de
+                        Control</span>
+                    <span class="text-xl font-bold tracking-tighter text-slate-900">SOFTWEAR</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div
+                    class="h-10 w-10 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-slate-200">
+                    A
+                </div>
+                <div class="hidden lg:block">
+                    <p class="text-sm font-bold text-slate-900 tracking-tight">Administrador</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Master Access</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6 md:p-12 max-w-7xl mx-auto">
+            {% if messages %}
+            <div class="mb-10 space-y-3">
+                {% for message in messages %}
+                <div
+                    class="p-5 rounded-2xl border bg-white border-slate-200 text-slate-900 shadow-sm flex items-center gap-4 font-medium">
+                    <span class="text-xl">{% if message.tags == 'success' %}✅{% else %}⚠️{% endif %}</span>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const desktopToggle = document.getElementById('desktopMenuToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+
+        function toggleSidebar() {
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        mobileToggle?.addEventListener('click', toggleSidebar);
+        desktopToggle?.addEventListener('click', toggleSidebar);
+        closeSidebar?.addEventListener('click', toggleSidebar);
+        overlay?.addEventListener('click', toggleSidebar);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Nueva Etiqueta | SOFTWEAR Admin{% endblock %}
+
+{% block content %}
+<div class="mb-12 flex items-end justify-between">
+    <div>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Taxonomía</span>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tighter mt-1">Registrar Nueva Etiqueta</h1>
+        <p class="text-slate-500 font-light mt-1">Define una nueva categoría para la organización del catálogo.</p>
+    </div>
+    <a href="{% url 'adminpanel:tag_list' %}"
+        class="px-8 py-3 text-xs font-bold text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-all flex items-center gap-2 border-b border-slate-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Cancelar y Volver
+    </a>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-[3rem] border border-slate-200 p-10 md:p-16 shadow-2xl shadow-slate-200/50">
+        <form method="post" class="space-y-12">
+            {% csrf_token %}
+
+            <div class="space-y-10">
+                <!-- Tag Name -->
+                <div class="space-y-3">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Nombre de
+                        Etiqueta *</label>
+                    <input type="text" name="name" required placeholder="Ej. Accesorios, Hombre, Outerwear"
+                        class="w-full px-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-bold text-slate-900 text-xl tracking-tight">
+                </div>
+
+                <!-- Icon URL -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Representación
+                        Gráfica (URL)</label>
+                    <input type="url" name="icon_url" placeholder="https://cdn.sofware.com/icons/tag.svg"
+                        class="w-full px-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium text-slate-900">
+                    <p
+                        class="text-[9px] text-slate-400 font-bold mt-3 px-1 uppercase tracking-widest italic tracking-tighter">
+                        Utilice vectores (SVG) para una visualización técnica óptima.</p>
+                </div>
+            </div>
+
+            <div class="pt-10">
+                <button type="submit"
+                    class="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-black active:scale-[0.98] transition-all shadow-2xl shadow-slate-900/20">
+                    Confirmar Registro de Etiqueta
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

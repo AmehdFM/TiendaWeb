@@ -1,0 +1,11 @@
+Django==6.0.3
+gunicorn==23.0.0
+python-decouple==3.8
+pillow==12.1.1
+sqlparse==0.5.5
+asgiref==3.11.1
+tzdata==2025.3
+decouple==0.0.7
+requests==2.32.5
+python-dotenv==1.2.1
+whitenoise==6.9.0

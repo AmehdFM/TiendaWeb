@@ -1,0 +1,127 @@
+﻿{% extends 'adminpanel/base.html' %}
+
+{% block title %}Etiquetas | SOFTWEAR Admin{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+    <div>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Taxonomía</span>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tighter mt-1">Gestión de Etiquetas</h1>
+        <p class="text-slate-500 font-light mt-1">Organización y clasificación visual del catálogo.</p>
+    </div>
+    <a href="{% url 'adminpanel:tag_add' %}" class="w-full md:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        Nueva Etiqueta
+    </a>
+</div>
+
+<!-- Tags Table -->
+<div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden max-w-4xl mx-auto shadow-2xl shadow-slate-200/50">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Icono</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nombre</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Slug</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Acción</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for t in tags %}
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-10 py-8">
+                        <div class="h-14 w-14 bg-slate-100 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-200 shadow-inner">
+                            {% if t.icon_url %}<img src="{{ t.icon_url }}" alt="" class="w-full h-full object-contain p-3">{% else %}<span class="text-slate-300 text-[9px] font-black uppercase tracking-tighter">None</span>{% endif %}
+                        </div>
+                    </td>
+                    <td class="px-10 py-8 text-xl font-bold text-slate-900 tracking-tight leading-none">{{ t.name }}</td>
+                    <td class="px-10 py-8"><code class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg text-xs font-black tracking-tighter uppercase">{{ t.slug }}</code></td>
+                    <td class="px-10 py-8 text-right">
+                        <button onclick="openTagModal({{ t.id }})" class="px-6 py-3 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-slate-900/10">Editar</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-10 py-32 text-center text-slate-300"><div class="text-6xl mb-6 grayscale opacity-10">🏷️</div><p class="font-bold uppercase tracking-widest text-xs">Taxonomía Vacía</p></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAG EDIT MODAL -->
+<div id="tagModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeModal()"></div>
+    <div class="relative bg-white w-full max-w-lg rounded-[3rem] p-12 shadow-2xl transform scale-90 transition-transform duration-300 pointer-events-auto overflow-hidden">
+        <div class="mb-10 flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Editor de Categorías</span>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tighter mt-1" id="modalTagName">Tag</h2>
+            </div>
+            <button onclick="closeModal()" class="p-3 hover:bg-slate-100 rounded-2xl transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <form id="tagEditForm" method="post" action="" class="space-y-8">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre Público</label>
+                <input type="text" name="name" id="tag_field_name" required class="w-full px-8 py-5 bg-slate-50 border-none rounded-3xl focus:ring-4 focus:ring-slate-100 transition-all font-bold text-slate-900">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">URL de Icono (Opcional)</label>
+                <input type="text" name="icon_url" id="tag_field_icon" class="w-full px-8 py-5 bg-slate-50 border-none rounded-3xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-500 text-sm">
+            </div>
+
+            <div class="pt-4">
+                <button type="submit" class="w-full py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openTagModal(id) {
+        const modal = document.getElementById('tagModal');
+        const content = modal.querySelector('.relative');
+        
+        document.body.style.overflow = 'hidden';
+        
+        // Fetch data
+        fetch(`/adminpanel/tags/json/${id}/`)
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('modalTagName').innerText = data.name;
+                document.getElementById('tag_field_name').value = data.name;
+                document.getElementById('tag_field_icon').value = data.icon_url || '';
+                document.getElementById('tagEditForm').action = `/adminpanel/tags/edit/${id}/`;
+            });
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+            content.classList.remove('scale-90');
+            content.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('tagModal');
+        const content = modal.querySelector('.relative');
+        
+        content.classList.add('scale-90');
+        content.classList.remove('scale-100');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 500);
+    }
+</script>
+{% endblock %}
