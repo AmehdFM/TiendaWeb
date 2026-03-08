@@ -16,25 +16,20 @@
     {% for product in products %}
     <div class="group flex flex-col">
         <!-- Image Card -->
-        <div
-            class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-slate-100 shadow-2xl shadow-slate-200/50 group-hover:shadow-slate-300/80 transition-all duration-700 mb-8">
+        <div class="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-white shadow-xl shadow-slate-200/50 group-hover:shadow-2xl group-hover:shadow-slate-300/80 transition-all duration-700 mb-8">
             <a href="{% url 'store:product_detail' product.id %}" class="block w-full h-full">
                 {% if product.image_url_1 %}
-                <img src="{{ product.image_url_1 }}" alt="{{ product.name }}"
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                <img src="{{ product.image_url_1 }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                 {% else %}
-                <div
-                    class="flex items-center justify-center h-full text-slate-300 font-black uppercase text-[10px] tracking-widest">
+                <div class="flex items-center justify-center h-full text-slate-300 font-black uppercase text-[10px] tracking-widest">
                     N/A</div>
                 {% endif %}
             </a>
 
             <!-- Quick Add Button Overlay -->
-            <form action="{% url 'store:add_to_cart' product.id %}" method="post"
-                class="add-to-cart-form absolute bottom-8 left-8 right-8 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 hidden md:block">
+            <form action="{% url 'store:add_to_cart' product.id %}" method="post" class="add-to-cart-form absolute bottom-8 left-8 right-8 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 hidden md:block">
                 {% csrf_token %}
-                <button type="submit"
-                    class="w-full py-5 bg-white text-slate-900 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest shadow-2xl hover:bg-slate-900 hover:text-white transition-all active:scale-95">
+                <button type="submit" class="w-full py-5 bg-white text-slate-900 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest shadow-2xl hover:bg-slate-900 hover:text-white transition-all active:scale-95">
                     Añadir
                 </button>
             </form>
@@ -43,8 +38,7 @@
         <!-- Info Area -->
         <div class="px-2">
             <div class="flex justify-between items-start gap-4 mb-2">
-                <a href="{% url 'store:product_detail' product.id %}"
-                    class="text-xl font-bold text-slate-900 tracking-tight group-hover:text-slate-500 transition-colors line-clamp-1 flex-1">
+                <a href="{% url 'store:product_detail' product.id %}" class="text-xl font-bold text-slate-900 tracking-tight group-hover:text-slate-500 transition-colors line-clamp-1 flex-1">
                     {{ product.name }}
                 </a>
                 <span class="text-xl font-black text-slate-900 tracking-tighter">${{ product.price }}</span>
@@ -59,8 +53,7 @@
             <!-- Mobile Add to Cart -->
             <form action="{% url 'store:add_to_cart' product.id %}" method="post" class="add-to-cart-form md:hidden">
                 {% csrf_token %}
-                <button type="submit"
-                    class="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all shadow-xl shadow-slate-900/10">
+                <button type="submit" class="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all shadow-xl shadow-slate-900/10">
                     Añadir al Carrito
                 </button>
             </form>

@@ -1,0 +1,333 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}{{ store.name }} | Tiendas SOFTWEAR{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
+    <div class="flex items-center gap-6">
+        <a href="{% url 'adminpanel:physical_store_list' %}" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Sucursal</span>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tighter mt-1">{{ store.name }}</h1>
+            <p class="text-slate-500 font-light mt-1">{{ store.city }}</p>
+        </div>
+    </div>
+    <div class="flex gap-3 w-full md:w-auto">
+        <button onclick="openModal('editStoreModal')" class="flex-1 md:flex-none px-8 py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold transition-all hover:border-slate-900 active:scale-95 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar
+        </button>
+        <button onclick="openModal('assignInventoryModal')" class="flex-1 md:flex-none px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold transition-all hover:bg-black active:scale-95 shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Asignar Producto
+        </button>
+    </div>
+</div>
+
+<!-- Stats + Info grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Store Info Card -->
+    <div class="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-200 p-10">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="font-black text-slate-900 text-sm uppercase tracking-widest">Datos de la Tienda</h2>
+            {% if store.is_active %}
+            <span class="px-4 py-2 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Activa</span>
+            {% else %}
+            <span class="px-4 py-2 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl">Inactiva</span>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="md:col-span-2">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dirección</p>
+                <p class="font-bold text-slate-900">{{ store.address }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Teléfono</p>
+                <p class="font-bold text-slate-900">{{ store.phone|default:"—" }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Correo</p>
+                <p class="font-bold text-slate-900">{{ store.email|default:"—" }}</p>
+            </div>
+            {% if store.description %}
+            <div class="md:col-span-2 bg-slate-50 rounded-2xl p-6">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Descripción</p>
+                <p class="font-medium text-slate-700">{{ store.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="flex flex-col gap-6">
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Productos Distintos</h3>
+            <p class="text-4xl font-black text-slate-900 tracking-tighter">{{ store.product_count }}</p>
+        </div>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Unidades Asignadas</h3>
+            <p class="text-4xl font-black text-slate-900 tracking-tighter">{{ store.total_assigned_stock }}</p>
+        </div>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Registrada</h3>
+            <p class="text-2xl font-black text-slate-900 tracking-tighter">{{ store.created_at|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Table -->
+<div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-2xl shadow-slate-200/50">
+    <div class="p-10 border-b border-slate-50 flex flex-col md:flex-row justify-between items-baseline gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Inventario Asignado</h2>
+            <p class="text-slate-400 font-light mt-1 text-sm">Productos y cantidades asignadas a esta sucursal.</p>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Producto
+                    </th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                        Talla</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                        Stock Asignado</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                        Stock Global</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
+                        Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for item in inventory %}
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-10 py-7">
+                        <div class="flex items-center gap-4">
+                            {% if item.product.image_url_1 %}
+                            <div class="h-12 w-12 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0">
+                                <img src="{{ item.product.image_url_1 }}" alt="" class="w-full h-full object-cover">
+                            </div>
+                            {% endif %}
+                            <p class="font-bold text-slate-900">{{ item.product.name }}</p>
+                        </div>
+                    </td>
+                    <td class="px-10 py-7 text-center">
+                        <span class="inline-block px-4 py-2 bg-slate-100 text-slate-700 text-[9px] font-black uppercase tracking-widest rounded-xl">{{ item.product_size.name }}</span>
+                    </td>
+                    <td class="px-10 py-7 text-center">
+                        <span class="inline-flex h-12 w-14 bg-slate-900 text-white items-center justify-center rounded-xl font-black text-sm">{{ item.quantity }}</span>
+                    </td>
+                    <td class="px-10 py-7 text-center font-bold text-slate-400">{{ item.product_size.stock }}</td>
+                    <td class="px-10 py-7 text-right">
+                        <div class="flex justify-end gap-3">
+                            <button onclick="openEditInventory({{ item.id }}, {{ item.product.id }}, {{ item.product_size.id }}, {{ item.quantity }}, '{{ item.product.name|escapejs }}', '{{ item.product_size.name|escapejs }}')" class="px-5 py-3 bg-white border border-slate-200 text-slate-900 text-[9px] font-black uppercase tracking-widest rounded-xl hover:border-slate-900 transition-all">
+                                Editar
+                            </button>
+                            <form method="post" action="{% url 'adminpanel:store_inventory_delete' store.id item.id %}" onsubmit="return confirm('¿Eliminar esta asignación?');">
+                                {% csrf_token %}
+                                <button type="submit" class="px-5 py-3 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-red-50 hover:text-red-500 transition-all">
+                                    Quitar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-10 py-24 text-center text-slate-300">
+                        <div class="text-6xl mb-4 opacity-10 grayscale">📦</div>
+                        <h3 class="text-lg font-bold uppercase tracking-widest">Sin Inventario Asignado</h3>
+                        <p class="font-light mt-2">Asigna productos a esta tienda con el botón "Asignar Producto".</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ASSIGN INVENTORY MODAL -->
+<div id="assignInventoryModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-md" onclick="closeModal('assignInventoryModal')"></div>
+    <div class="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 pointer-events-auto">
+        <div class="p-10 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400" id="assignModalLabel">Asignar</span>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tighter mt-1" id="assignModalTitle">Producto a
+                    Tienda</h2>
+            </div>
+            <button onclick="closeModal('assignInventoryModal')" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'adminpanel:store_inventory_update' store.id %}" class="p-10 space-y-6" id="assignForm">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" id="assign_product_id">
+            <input type="hidden" name="size_id" id="assign_size_id">
+            <div class="space-y-2" id="productSelectWrapper">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Producto *</label>
+                <select id="assignProduct" required onchange="loadSizesForStore(this.value)" class="w-full py-4 px-6 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-bold text-slate-900">
+                    <option value="">Seleccionar producto...</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="space-y-2" id="sizeSelectWrapper">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Talla *</label>
+                <select id="assignSize" required onchange="document.getElementById('assign_size_id').value = this.value; document.getElementById('assign_product_id').value = document.getElementById('assignProduct').value;" class="w-full py-4 px-6 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-bold text-slate-900">
+                    <option value="">Selecciona un producto...</option>
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cantidad Asignada
+                    *</label>
+                <input type="number" name="quantity" id="assignQty" min="0" required value="0" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-black text-slate-900 text-3xl text-center">
+            </div>
+            <button type="submit" id="assignSubmitBtn" class="w-full py-5 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95">
+                Confirmar Asignación
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT STORE MODAL -->
+<div id="editStoreModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-md" onclick="closeModal('editStoreModal')"></div>
+    <div class="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 pointer-events-auto overflow-y-auto max-h-[90vh]">
+        <div class="p-10 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Modificar</span>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tighter mt-1">Editar Tienda</h2>
+            </div>
+            <button onclick="closeModal('editStoreModal')" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'adminpanel:physical_store_edit' store.id %}" class="p-10 space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2 md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre *</label>
+                    <input type="text" name="name" required value="{{ store.name }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-bold text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ciudad</label>
+                    <input type="text" name="city" value="{{ store.city }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teléfono</label>
+                    <input type="text" name="phone" value="{{ store.phone }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Correo</label>
+                    <input type="email" name="email" value="{{ store.email }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección</label>
+                <input type="text" name="address" value="{{ store.address }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
+                <textarea name="description" rows="3" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">{{ store.description }}</textarea>
+            </div>
+            <label class="flex items-center gap-4 cursor-pointer">
+                <input type="checkbox" name="is_active" {% if store.is_active %}checked{% endif %} class="h-5 w-5 rounded-lg border-slate-300 text-slate-900">
+                <span class="font-bold text-slate-900">Tienda activa</span>
+            </label>
+            <button type="submit" class="w-full py-5 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95">
+                Guardar Cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        const content = modal.querySelector('.relative');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        const content = modal.querySelector('.relative');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        content.classList.add('scale-95');
+        content.classList.remove('scale-100');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function loadSizesForStore(productId) {
+        document.getElementById('assign_product_id').value = productId;
+        const sizeSelect = document.getElementById('assignSize');
+        if (!productId) {
+            sizeSelect.innerHTML = '<option value="">Selecciona un producto...</option>';
+            return;
+        }
+        fetch(`/adminpanel/mayoristas/tallas/${productId}/`)
+            .then(r => r.json())
+            .then(data => {
+                sizeSelect.innerHTML = '<option value="">Seleccionar talla...</option>';
+                data.sizes.forEach(s => {
+                    sizeSelect.innerHTML += `<option value="${s.id}">${s.name} (Stock global: ${s.stock})</option>`;
+                });
+            });
+    }
+
+    function openEditInventory(itemId, productId, sizeId, qty, productName, sizeName) {
+        // Pre-fill the assign form to act as "edit"
+        document.getElementById('assignModalLabel').innerText = 'Editar asignación';
+        document.getElementById('assignModalTitle').innerText = `${productName} — ${sizeName}`;
+        document.getElementById('assign_product_id').value = productId;
+        document.getElementById('assign_size_id').value = sizeId;
+        document.getElementById('assignQty').value = qty;
+        // Hide selectors, as we already know product+size
+        document.getElementById('productSelectWrapper').classList.add('hidden');
+        document.getElementById('sizeSelectWrapper').classList.add('hidden');
+        openModal('assignInventoryModal');
+    }
+
+    // Reset modal when opened fresh via main button
+    document.querySelector('[onclick="openModal(\'assignInventoryModal\')"]').addEventListener('click', () => {
+        document.getElementById('assignModalLabel').innerText = 'Asignar';
+        document.getElementById('assignModalTitle').innerText = 'Producto a Tienda';
+        document.getElementById('assign_product_id').value = '';
+        document.getElementById('assign_size_id').value = '';
+        document.getElementById('assignQty').value = 0;
+        document.getElementById('productSelectWrapper').classList.remove('hidden');
+        document.getElementById('sizeSelectWrapper').classList.remove('hidden');
+        document.getElementById('assignProduct').value = '';
+        document.getElementById('assignSize').innerHTML = '<option value="">Selecciona un producto...</option>';
+    });
+
+    document.getElementById('assignSize').addEventListener('change', function () {
+        document.getElementById('assign_size_id').value = this.value;
+    });
+</script>
+{% endblock %}

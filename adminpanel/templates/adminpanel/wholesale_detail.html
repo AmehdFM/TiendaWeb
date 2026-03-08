@@ -1,0 +1,300 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}{{ client.name }} | Mayoristas SOFTWEAR{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
+    <div class="flex items-center gap-6">
+        <a href="{% url 'adminpanel:wholesale_list' %}" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <div>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Perfil Mayorista</span>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tighter mt-1">{{ client.name }}</h1>
+            {% if client.company %}<p class="text-slate-500 font-light mt-1">{{ client.company }}</p>{% endif %}
+        </div>
+    </div>
+    <div class="flex gap-3 w-full md:w-auto">
+        <button onclick="openEditModal()" class="flex-1 md:flex-none px-8 py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold transition-all hover:border-slate-900 active:scale-95 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar
+        </button>
+        <button onclick="openModal('newPurchaseModal')" class="flex-1 md:flex-none px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold transition-all hover:bg-black active:scale-95 shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Compra
+        </button>
+    </div>
+</div>
+
+<!-- Stats + Info grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Client Info Card -->
+    <div class="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-200 p-10">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="font-black text-slate-900 text-sm uppercase tracking-widest">Datos del Cliente</h2>
+            {% if client.is_active %}
+            <span class="px-4 py-2 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Activo</span>
+            {% else %}
+            <span class="px-4 py-2 bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-widest rounded-xl">Inactivo</span>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Teléfono</p>
+                <p class="font-bold text-slate-900">{{ client.phone|default:"—" }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Correo</p>
+                <p class="font-bold text-slate-900">{{ client.email|default:"—" }}</p>
+            </div>
+            <div class="md:col-span-2">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dirección</p>
+                <p class="font-medium text-slate-700">{{ client.address|default:"—" }}</p>
+            </div>
+            {% if client.notes %}
+            <div class="md:col-span-2 bg-slate-50 rounded-2xl p-6">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Notas Internas</p>
+                <p class="font-medium text-slate-700">{{ client.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="flex flex-col gap-6">
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Total Gastado</h3>
+            <p class="text-4xl font-black text-slate-900 tracking-tighter">${{ client.total_spent }}</p>
+        </div>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Compras Realizadas</h3>
+            <p class="text-4xl font-black text-slate-900 tracking-tighter">{{ client.purchase_count }}</p>
+        </div>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 p-8 flex flex-col justify-between flex-1">
+            <h3 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4 border-l-2 border-slate-200 pl-4">
+                Cliente Desde</h3>
+            <p class="text-2xl font-black text-slate-900 tracking-tighter">{{ client.registered_at|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Purchase History -->
+<div class="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-2xl shadow-slate-200/50">
+    <div class="p-10 border-b border-slate-50">
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Historial de Compras</h2>
+        <p class="text-slate-400 font-light mt-1 text-sm">Registro completo de transacciones mayoristas.</p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fecha</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Producto
+                    </th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                        Talla</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                        Cantidad</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
+                        P. Unitario</th>
+                    <th class="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
+                        Total</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for purchase in purchases %}
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-10 py-7 text-slate-500 font-medium text-sm whitespace-nowrap">{{ purchase.date|date:"d/m/Y H:i" }}</td>
+                    <td class="px-10 py-7">
+                        <p class="font-bold text-slate-900">{{ purchase.product.name|default:"Producto eliminado" }}</p>
+                        {% if purchase.notes %}<p class="text-xs text-slate-400 mt-0.5">{{ purchase.notes }}</p>{% endif %}
+                    </td>
+                    <td class="px-10 py-7 text-center">
+                        <span class="inline-block px-3 py-1.5 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-lg">
+                            {{ purchase.product_size.name|default:"—" }}
+                        </span>
+                    </td>
+                    <td class="px-10 py-7 text-center font-black text-slate-900 text-xl tracking-tighter">{{ purchase.quantity }}</td>
+                    <td class="px-10 py-7 text-right font-bold text-slate-600">${{ purchase.unit_price }}</td>
+                    <td class="px-10 py-7 text-right font-black text-slate-900 text-xl tracking-tighter">${{ purchase.total }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-10 py-24 text-center text-slate-300">
+                        <div class="text-6xl mb-4 opacity-10 grayscale">📦</div>
+                        <h3 class="text-lg font-bold uppercase tracking-widest">Sin Compras Registradas</h3>
+                        <p class="font-light mt-2">Registra la primera compra de este cliente.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- NEW PURCHASE MODAL -->
+<div id="newPurchaseModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-md" onclick="closeModal('newPurchaseModal')"></div>
+    <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 pointer-events-auto overflow-hidden">
+        <div class="p-10 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Registrar</span>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tighter mt-1">Nueva Compra Mayorista</h2>
+            </div>
+            <button onclick="closeModal('newPurchaseModal')" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'adminpanel:wholesale_purchase_add' client.id %}" class="p-10 space-y-6">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Producto *</label>
+                <select name="product_id" id="purchaseProduct" required onchange="loadSizes(this.value)" class="w-full py-4 px-6 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-bold text-slate-900">
+                    <option value="">Seleccionar producto...</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} — ${{ product.price }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Talla</label>
+                <select name="size_id" id="purchaseSize" class="w-full py-4 px-6 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-bold text-slate-900">
+                    <option value="">Selecciona un producto primero...</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cantidad
+                        *</label>
+                    <input type="number" name="quantity" min="1" required value="1" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-black text-slate-900 text-2xl text-center">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Precio Unit.
+                        *</label>
+                    <input type="number" step="0.01" name="unit_price" id="purchasePrice" min="0" required class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-black text-slate-900 text-2xl text-center">
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Notas
+                    (opcional)</label>
+                <input type="text" name="notes" placeholder="Ej. Descuento especial, pago pendiente..." class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+            </div>
+            <button type="submit" class="w-full py-5 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95">
+                Confirmar Compra
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT CLIENT MODAL -->
+<div id="editClientModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-md" onclick="closeModal('editClientModal')"></div>
+    <div class="relative bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl transform scale-95 transition-transform duration-300 pointer-events-auto overflow-y-auto max-h-[90vh]">
+        <div class="p-10 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+            <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Modifcar Registro</span>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tighter mt-1">Editar Cliente</h2>
+            </div>
+            <button onclick="closeModal('editClientModal')" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'adminpanel:wholesale_edit' client.id %}" class="p-10 space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre *</label>
+                    <input type="text" name="name" required value="{{ client.name }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-bold text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Empresa</label>
+                    <input type="text" name="company" value="{{ client.company }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Teléfono</label>
+                    <input type="text" name="phone" value="{{ client.phone }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Correo</label>
+                    <input type="email" name="email" value="{{ client.email }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección</label>
+                <input type="text" name="address" value="{{ client.address }}" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">
+            </div>
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Notas
+                    Internas</label>
+                <textarea name="notes" rows="3" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-900">{{ client.notes }}</textarea>
+            </div>
+            <label class="flex items-center gap-4 cursor-pointer">
+                <input type="checkbox" name="is_active" {% if client.is_active %}checked{% endif %} class="h-5 w-5 rounded-lg border-slate-300 text-slate-900 focus:ring-slate-900">
+                <span class="font-bold text-slate-900">Cliente activo</span>
+            </label>
+            <button type="submit" class="w-full py-5 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-slate-900/20 active:scale-95">
+                Guardar Cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        const content = modal.querySelector('.relative');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    }
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        const content = modal.querySelector('.relative');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        content.classList.add('scale-95');
+        content.classList.remove('scale-100');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+    function openEditModal() {
+        openModal('editClientModal');
+    }
+    function loadSizes(productId) {
+        const sizeSelect = document.getElementById('purchaseSize');
+        const priceInput = document.getElementById('purchasePrice');
+        if (!productId) {
+            sizeSelect.innerHTML = '<option value="">Selecciona un producto primero...</option>';
+            return;
+        }
+        const selectedOption = document.querySelector(`#purchaseProduct option[value="${productId}"]`);
+        if (selectedOption) {
+            priceInput.value = selectedOption.dataset.price;
+        }
+        fetch(`/adminpanel/mayoristas/tallas/${productId}/`)
+            .then(r => r.json())
+            .then(data => {
+                sizeSelect.innerHTML = '<option value="">Sin talla específica</option>';
+                data.sizes.forEach(s => {
+                    sizeSelect.innerHTML += `<option value="${s.id}">${s.name} (Stock: ${s.stock})</option>`;
+                });
+            });
+    }
+</script>
+{% endblock %}
